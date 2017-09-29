@@ -4,9 +4,10 @@ var ctx = canvas.getContext("2d");
 var mouseDown = false;
 var mouseDragging = false;
 
-var heatmap = new HeatMapper();
+var heatmap = new heatMapper();
 var colors = [];
 var scale = [];
+var detail = 1000;
 
 canvas.addEventListener("mousedown", mouseDownHandler);
 canvas.addEventListener("mouseup", mouseUpHandler);
@@ -18,7 +19,11 @@ function mouseDownHandler(event) {
     
     
     ctx.fillRect(event.offsetX, 0, 1, 100);
-    
+    var randomColor = {r: Math.floor(Math.random() * 255),
+		       g: Math.floor(Math.random() * 255),
+		       b: Math.floor(Math.random() * 255) };
+    heatmap.addBreak(randomColor, event.offsetX);
+    updateMap();
 }
 
 function mouseMoveHandler(event) {
@@ -30,24 +35,12 @@ function mouseUpHandler(event) {
     mouseDragging = false;
 }
 
-function pushSort(array, value) {
-    var i,
-	l,
-	index = array.length;
-    for (i = 0, l = array.length; i < l; i++) {
-	if (value < array[i]) { // Insert at i if less than that value
-	    index = i;
-	    array.splice(i, 0, value);
-	    break;
-	}
-    }
-    if (index == array.length)
-	array.push(value);
-    return index;
-}
-
 function updateMap() {
-    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < detail; i++) {
+	ctx.fillStyle = heatmap.getRGBColor(i * canvas.width / detail);
+	ctx.fillRect(i * canvas.width / detail, 0, canvas.width / detail, canvas.height);
+    }
 }
 
 function nearestBreak(x) {

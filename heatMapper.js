@@ -61,9 +61,9 @@
     heatMapper.prototype.getRGBColor = function(value) {
 	var color;
 	
-	if (value < scalar[0]) // Beneath lower bound
+	if (value <= scalar[0]) // Beneath lower bound
 	    color = colors[0];
-	else if (value > scalar[scalar.length - 1]) // Above upper bound
+	else if (value >= scalar[scalar.length - 1]) // Above upper bound
 	    color = colors[colors.length - 1];
 
 	else {
@@ -82,7 +82,7 @@
     heatMapper.prototype.addBreak = function(color, val) {
 	validateColor(color);
 	
-	colors.splice(pushSort(scalars, val), 0, color);
+	colors.splice(pushSort(scalar, val), 0, color);
     }
 
     function pushSort(array, value) {
