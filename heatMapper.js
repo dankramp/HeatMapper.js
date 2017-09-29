@@ -58,6 +58,19 @@
 	scalar = scale;
     }
 
+    heatMapper.prototype.colorToHex = function(color) {
+	validateColor(color);
+	var r = Number(color.r).toString(16),
+	    g = Number(color.g).toString(16),
+	    b = Number(color.b).toString(16);
+
+	r = (r.length > 1) ? r : "0" + r;
+	g = (g.length > 1) ? g : "0" + g;
+	b = (b.length > 1) ? b : "0" + b;
+	
+	return "#" + r + g + b;
+    }
+
     heatMapper.prototype.getRGBColor = function(value) {
 	var color;
 	
@@ -77,6 +90,13 @@
 		}
 	}
 	return "rgb(" + Math.round(color.r) + "," + Math.round(color.g) + "," + Math.round(color.b) + ")";
+    }
+
+    heatMapper.prototype.getScalar = function() {
+	return scalar;
+    }
+    heatMapper.prototype.getColors = function() {
+	return colors;
     }
 
     heatMapper.prototype.addBreak = function(color, val) {
