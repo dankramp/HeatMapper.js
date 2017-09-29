@@ -1,0 +1,93 @@
+;(function (undefined) {
+    "use strict;"
+
+    // Public global variables
+    var colors = [],
+	scalar = [],
+	self = undefined;
+
+    /**
+     * 
+     *
+     * Constructor for heatMapper object
+     *
+     *
+     * @param {array} colorArray - contains the ordered sequence of colors from low
+     *                             frequency to high. Colors are objects that have 'r', 'g',
+     *                             and 'b' fields with values 0-255.
+     * @param {number|array} scale - a number or array of numbers that denotes the scale
+     *                               to which the heatmap will map color to frequency. 
+     *
+     *                               If a number, scale is linear mapping from 0 to the number.
+     */
+
+    var heatMapper = function(colorArray, scale){
+	
+	self = this;
+
+	/* Testing and correcting inputs */
+	
+	if (!colorArray.constructor === Array)
+	    throw "error: colorArray must be an array.";
+	if (!colorArray.length)
+	    throw "error: colorArray must have at least one value"
+
+	// If scale is a Number, set it to an array with linearly
+	// incrementing numbers from 0 to scale
+	if (typeof(scale) === 'number') {
+	    var scaleArray = [];
+	    for (var i = 0, l = colorArray.length; i < l; i++) {
+		scaleArray[i] = scale * i / (l - 1); 
+	    }
+	    scale = scaleArray;
+	}
+	if (!scale.constructor === Array )
+	    throw "error: scale must be a number or an array.";
+	if (scale.length != colorArray.length)
+	    throw "error: scale array must be same length as color array";
+
+	// Verify that numbers in scale are in order from least to greatest and no duplicates
+	for (i = scale.length - 1; i >= 0; i--)
+	    if (scale[i] <= scale[i - 1])
+		throw "error: scale array must be ordered least to greatest without duplicates.";
+
+	// Verify that colors have r, g, b fields that are [0,255]
+	for (i = 0, l < colorArray.length; i < l; i++) {
+	    //if (!colorArray[i].r || !colorArray[i].g || !colorArray[i].b)
+		//throw "error: all colors must have r, g, b fields";
+	    if (colorArray[i].r < 0 || colorArray[i].r > 255)
+		throw "error: red value must be in the range [0,255]";
+	    if (colorArray[i].g < 0 || colorArray[i].g > 255)
+		throw "error: green value must be in the range [0,255]";
+	    if (colorArray[i].b < 0 || colorArray[i].b > 255)
+		throw "error: blue value must be in the range [0,255]";
+	}
+
+	// All tests passed; create object
+	colors = colorArray;
+	scalar = scale;
+    }
+
+    heatMapper.prototype.getHexColor = function(value) {
+	var color;
+	
+	if (value < scalar[0]) // Beneath lower bound
+	    color = colors[0];
+	else if (value > scalar[scalar.length - 1]) // Above upper bound
+	    color = colors[colors.length - 1];
+
+	else {
+	    for (var i = 1, l = scalar.length; i < l; i++)
+		if (value <= scalar[i]) { // Value is between scalar[i] and scalar[i-1]
+		    var vect = (value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]);
+		    var color = {r: vect * (colors[i].r - colors[i - 1].r) + colors[i - 1].r,
+				 g: vect * (colors[i].g - colors[i - 1].g) + colors[i - 1].g,
+				 b: vect * (colors[i].b - colors[i - 1].b) + colors[i - 1].b};
+		    break;
+		}
+	}
+	return "rgb(" + Math.round(color.r) + "," + Math.round(color.g) + "," + Math.round(color.b) + ")";
+    }
+    
+    this.heatMapper = heatMapper;
+}).call(this);

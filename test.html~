@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>heatMapper Test</title>
+    <script src="heatMapper.js"></script>
+  </head>
+  <body>
+    <canvas id="theCanvas" width="500" height="80" style="border: 1px solid black"></canvas>
+
+    <script>
+      var canvas = document.getElementById("theCanvas");
+      var ctx = canvas.getContext("2d");
+
+      var colors = [
+      // Red
+      {r: 255, g: 0, b: 0},
+      // Blue
+      {r: 0, g: 0, b: 255},
+      // Yellow
+      {r: 255, g: 255, b: 0},
+      // Green
+      {r: 0, g: 255, b: 0}
+      ];
+
+      var heatMapper = new heatMapper(colors, 100);
+      
+
+    </script>
+  </body>
+</html>

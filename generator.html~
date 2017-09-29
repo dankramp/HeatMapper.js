@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title>HeatMapper Generator</title>
+    <script src="heatMapper.js"></script>
+  </head>
+  <body>
+    <h1>HeatMapper Generator</h1>
+    <h3><i>Click on the range below to add a new color</i></h3>
+    <canvas id="heatCanvas" width="500px" height="100px" style="border: 2px solid grey"></canvas>
+    
+  </body>
+  
+</html>

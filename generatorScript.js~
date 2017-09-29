@@ -1,0 +1,17 @@
+var canvas = document.getElementById("heatCanvas");
+var ctx = canvas.getContext("2d");
+
+var mouseDown = false;
+var mouseDragging = false;
+
+canvas.addEventListener("mousedown", mouseDownHandler);
+canvas.addEventListener("mouseup", mouseUpHandler);
+
+function mouseDownHandler(event) {
+    mouseDown = true;
+    
+}
+
+function mouseUpHandler(event) {
+    mouseDown = false;
+}
