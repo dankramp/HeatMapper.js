@@ -58,20 +58,7 @@
 	scalar = scale;
     }
 
-    heatMapper.prototype.colorToHex = function(color) {
-	validateColor(color);
-	var r = Number(color.r).toString(16),
-	    g = Number(color.g).toString(16),
-	    b = Number(color.b).toString(16);
-
-	r = (r.length > 1) ? r : "0" + r;
-	g = (g.length > 1) ? g : "0" + g;
-	b = (b.length > 1) ? b : "0" + b;
-	
-	return "#" + r + g + b;
-    }
-
-    heatMapper.prototype.getRGBColor = function(value) {
+    heatMapper.prototype.getHexColor = function(value) {
 	var color;
 	
 	if (value <= scalar[0]) // Beneath lower bound
@@ -83,13 +70,20 @@
 	    for (var i = 1, l = scalar.length; i < l; i++)
 		if (value <= scalar[i]) { // Value is between scalar[i] and scalar[i-1]
 		    var vect = (value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]);
-		    var color = {r: vect * (colors[i].r - colors[i - 1].r) + colors[i - 1].r,
-				 g: vect * (colors[i].g - colors[i - 1].g) + colors[i - 1].g,
-				 b: vect * (colors[i].b - colors[i - 1].b) + colors[i - 1].b};
-		    break;
+		    var c1 = getRGB(colors[i-1]),
+			c2 = getRGB(colors[i]);
+		    var r = Math.floor(vect * (c2.r - c1.r) + c1.r).toString(16),
+			g = Math.floor(vect * (c2.g - c1.g) + c1.g).toString(16),
+			b = Math.floor(vect * (c2.b - c1.b) + c1.b).toString(16);
+
+		    r = (r.length > 1) ? r : "0" + r;
+		    g = (g.length > 1) ? g : "0" + g;
+		    b = (b.length > 1) ? b : "0" + b;
+
+		    return "#" + r + g + b;
 		}
 	}
-	return "rgb(" + Math.round(color.r) + "," + Math.round(color.g) + "," + Math.round(color.b) + ")";
+	return color;
     }
 
     heatMapper.prototype.getScalar = function() {
@@ -98,7 +92,6 @@
     heatMapper.prototype.getColors = function() {
 	return colors;
     }
-
     heatMapper.prototype.addBreak = function(color, val) {
 	validateColor(color);
 	
@@ -121,15 +114,18 @@
 	return index;
     }
 
+    function getRGB(hex) {
+	validateColor(hex);
+	
+	return {r: parseInt(hex.substring(1, 3), 16),
+		g: parseInt(hex.substring(3, 5), 16),
+		b: parseInt(hex.substring(5, 7), 16) };
+    }
+
     function validateColor(color) {
-	//if (!color.r || !color.g || !color.b)
-	//throw "error: all colors must have r, g, b fields";
-	if (color.r < 0 || color.r > 255)
-	    throw "error: red value must be in the range [0,255]";
-	if (color.g < 0 || color.g > 255)
-	    throw "error: green value must be in the range [0,255]";
-	if (color.b < 0 || color.b > 255)
-	    throw "error: blue value must be in the range [0,255]";
+	var regex = new RegExp("^#[a-fA-F0-9]{6}");
+	if (!regex.test(color))
+	    throw "error: colors must be formatted as #rrggbb";
     }
     
     this.heatMapper = heatMapper;
