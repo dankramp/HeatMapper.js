@@ -1,13 +1,20 @@
 <html>
   <head>
     <title>HeatMapper Generator</title>
-    <script src="heatMapper.js"></script>
+    <script src="HeatMapper.js"></script>
   </head>
   <body style="text-align: center">
     <h1>HeatMapper Generator</h1>
     <h3><i>Click on the range below to add a new color</i></h3>
     <canvas id="heatCanvas" width="1000px" height="100px" style="border: 2px solid grey"></canvas>
     <ul id="input-list" style="list-style-type: none"></ul>
+    <br />
+    <textarea rows="15" cols="100" id="code-box" disabled>// Auto-generated code will appear here
+      
+var heatmap = new HeatMapper();
+var colors = [];
+var scale = [];
+    </textarea>
     
     <script src="generatorScript.js"></script>
   </body>

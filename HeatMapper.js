@@ -21,7 +21,7 @@
      *                               If a number, scale is linear mapping from 0 to the number.
      */
 
-    var heatMapper = function(colorArray=[], scale=[]){
+    var HeatMapper = function(colorArray=[], scale=[]){
 	
 	self = this;
 
@@ -58,7 +58,7 @@
 	scalar = scale;
     }
 
-    heatMapper.prototype.getHexColor = function(value) {
+    HeatMapper.prototype.getHexColor = function(value) {
 	var color;
 	
 	if (value <= scalar[0]) // Beneath lower bound
@@ -70,29 +70,27 @@
 	    for (var i = 1, l = scalar.length; i < l; i++)
 		if (value <= scalar[i]) { // Value is between scalar[i] and scalar[i-1]
 		    var vect = (value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]);
-		    var c1 = getRGB(colors[i-1]),
-			c2 = getRGB(colors[i]);
-		    var r = Math.floor(vect * (c2.r - c1.r) + c1.r).toString(16),
-			g = Math.floor(vect * (c2.g - c1.g) + c1.g).toString(16),
-			b = Math.floor(vect * (c2.b - c1.b) + c1.b).toString(16);
-
-		    r = (r.length > 1) ? r : "0" + r;
-		    g = (g.length > 1) ? g : "0" + g;
-		    b = (b.length > 1) ? b : "0" + b;
-
-		    return "#" + r + g + b;
+		    var c1 = hexToRGB(colors[i-1]),
+			c2 = hexToRGB(colors[i]);
+		    return rgbToHex({r: vect * (c2.r - c1.r) + c1.r,
+				     g: vect * (c2.g - c1.g) + c1.g,
+				     b: vect * (c2.b - c1.b) + c1.b });
 		}
 	}
 	return color;
     }
 
-    heatMapper.prototype.getScalar = function() {
+    HeatMapper.prototype.getScalar = function() {
 	return scalar;
     }
-    heatMapper.prototype.getColors = function() {
+    HeatMapper.prototype.setScalar = function(index, value) {
+  	scalar.splice(index, 1);
+	pushSort(scalar, value);
+    }
+    HeatMapper.prototype.getColors = function() {
 	return colors;
     }
-    heatMapper.prototype.addBreak = function(color, val) {
+    HeatMapper.prototype.addBreak = function(color, val) {
 	validateColor(color);
 	
 	colors.splice(pushSort(scalar, val), 0, color);
@@ -114,7 +112,7 @@
 	return index;
     }
 
-    function getRGB(hex) {
+    function hexToRGB(hex) {
 	validateColor(hex);
 	
 	return {r: parseInt(hex.substring(1, 3), 16),
@@ -122,11 +120,25 @@
 		b: parseInt(hex.substring(5, 7), 16) };
     }
 
+    function rgbToHex(rgb) {
+	var r = Math.floor(rgb.r).toString(16),
+	    g = Math.floor(rgb.g).toString(16),
+	    b = Math.floor(rgb.b).toString(16);
+
+	r = (r.length > 1) ? r : "0" + r;
+	g = (g.length > 1) ? g : "0" + g;
+	b = (b.length > 1) ? b : "0" + b;
+
+	return "#" + r + g + b;
+    }
+
     function validateColor(color) {
 	var regex = new RegExp("^#[a-fA-F0-9]{6}");
-	if (!regex.test(color))
+	if (!regex.test(color)) {
+	    console.log(color);
 	    throw "error: colors must be formatted as #rrggbb";
+	}
     }
     
-    this.heatMapper = heatMapper;
+    this.HeatMapper = HeatMapper;
 }).call(this);
