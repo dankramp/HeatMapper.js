@@ -58,28 +58,33 @@ function mouseUpHandler(event) {
 
 function updateCode() {
     document.getElementById("code-box").innerHTML = "// Auto-generated code will appear here\n\n\
-var heatmap = new HeatMapper();\n\
 var colors = [" + heatmap.getColors().map(function(c){ return "'" + c + "'";}).join(",") + "];\n\
-var scale = [" + heatmap.getScalar().map(function(s){ return s / 10; }).join(",") + "];";
+var scale = [" + heatmap.getScalar().map(function(s){ return s / 10; }).join(",") + "];\n\
+var heatmap = new HeatMapper(colors, scale);";
+}
+
+function getComplementaryColor(color) {
+    var value = parseInt("ffffff", 16) - parseInt(color.substring(1), 16);
+    return "#" + value.toString(16).padStart(6, '0');
 }
 
 function updateMap() {
     var scalar = heatmap.getScalar();
+    var colors = heatmap.getColors();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     for (var i = 0; i < detail; i++) {
 	ctx.fillStyle = heatmap.getHexColor(i * canvas.width / detail);
 	ctx.fillRect(i * canvas.width / detail, 0, canvas.width / detail, canvas.height);
     }
 
-    ctx.strokeStyle = "#ffff00";
     var rectSize = Math.max(Math.floor(canvas.width / detail), 6);
-    ctx.beginPath();
     for (var i = 0, l = scalar.length; i < l; i++) {
-	ctx.rect(scalar[i] - scalar[i] % (rectSize), 0, rectSize, canvas.height);
-	ctx.stroke();
+	ctx.beginPath();
+	ctx.strokeStyle = getComplementaryColor(colors[i]);
+	ctx.strokeRect(scalar[i] - scalar[i] % (rectSize) + .5, 0, rectSize, canvas.height);
     }
-    ctx.closePath();
+
 }
 
 function updateList() {
