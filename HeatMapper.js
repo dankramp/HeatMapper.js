@@ -58,7 +58,7 @@
 	scalar = scale;
     }
 
-    HeatMapper.prototype.getHexColor = function(value) {
+    HeatMapper.prototype.getHexColor = function(value, log) {
 	var color;
 	
 	if (value <= scalar[0]) // Beneath lower bound
@@ -69,7 +69,12 @@
 	else {
 	    for (var i = 1, l = scalar.length; i < l; i++)
 		if (value <= scalar[i]) { // Value is between scalar[i] and scalar[i-1]
-		    var vect = (value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]);
+		    var vect;
+		    if (!log) // Linear interpolation
+			vect = (value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]);
+		    else // Logistic function
+			vect = 1 / (1 + Math.pow(Math.E, -10 / (scalar[i] - scalar[i - 1]) * (value - (scalar[i] + scalar[i - 1] ) / 2)));
+		    
 		    var c1 = hexToRGB(colors[i-1]),
 			c2 = hexToRGB(colors[i]);
 		    return rgbToHex({r: vect * (c2.r - c1.r) + c1.r,

@@ -2,6 +2,7 @@ var canvas = document.getElementById("heatCanvas");
 var ctx = canvas.getContext("2d");
 var list = document.getElementById("input-list");
 var val_input = document.getElementById("get-value");
+var log_check = document.getElementById("log-check");
 
 var mouseDown = false;
 var mouseDragging = false;
@@ -15,9 +16,13 @@ canvas.addEventListener("mousedown", mouseDownHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
 canvas.addEventListener("mouseup", mouseUpHandler);
 val_input.addEventListener("input", valueChangeHandler);
+log_check.addEventListener("click", function() {
+    updateMap();
+    valueChangeHandler(null);
+});
 
 function valueChangeHandler(event) {
-    document.getElementById("hex-value").innerHTML = heatmap.getHexColor(val_input.value * 10);
+    document.getElementById("hex-value").innerHTML = heatmap.getHexColor(val_input.value * 10, log_check.checked);
 }
 
 function mouseDownHandler(event) {
@@ -76,7 +81,7 @@ function updateMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (var i = 0; i < detail; i++) {
-	ctx.fillStyle = heatmap.getHexColor(i * canvas.width / detail);
+	ctx.fillStyle = heatmap.getHexColor(i * canvas.width / detail, log_check.checked);
 	ctx.fillRect(i * canvas.width / detail, 0, canvas.width / detail, canvas.height);
     }
 
