@@ -1,6 +1,7 @@
 var canvas = document.getElementById("heatCanvas");
 var ctx = canvas.getContext("2d");
 var list = document.getElementById("input-list");
+var val_input = document.getElementById("get-value");
 
 var mouseDown = false;
 var mouseDragging = false;
@@ -13,6 +14,11 @@ var breakPoint = undefined;
 canvas.addEventListener("mousedown", mouseDownHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
 canvas.addEventListener("mouseup", mouseUpHandler);
+val_input.addEventListener("input", valueChangeHandler);
+
+function valueChangeHandler(event) {
+    document.getElementById("hex-value").innerHTML = heatmap.getHexColor(val_input.value * 10);
+}
 
 function mouseDownHandler(event) {
     mouseDown = true;
@@ -43,11 +49,7 @@ function mouseUpHandler(event) {
 	    document.getElementById("sp" + nearest).click();
 	}
 	else {
-	    var red = "#ff0000";
-	    //var randomColor = {r: Math.floor(Math.random() * 255),
-	//		       g: Math.floor(Math.random() * 255),
-	//		       b: Math.floor(Math.random() * 255) };
-	    heatmap.addBreak(red, event.offsetX - event.offsetX % (canvas.width / detail));
+	    heatmap.addBreak("#ff0000", event.offsetX - event.offsetX % (canvas.width / detail));
 	    updateMap();
 	    updateList();
 	    updateCode();
