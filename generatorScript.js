@@ -1,17 +1,22 @@
-var canvas = document.getElementById("heatCanvas");
-var ctx = canvas.getContext("2d");
-var list = document.getElementById("input-list");
-var val_input = document.getElementById("get-value");
-var log_check = document.getElementById("log-check");
+"use strict;"
 
-var mouseDown = false;
-var mouseDragging = false;
+// DOM Elements
+var canvas = document.getElementById("heatCanvas"),
+    ctx = canvas.getContext("2d"),
+    list = document.getElementById("input-list"),
+    val_input = document.getElementById("get-value"),
+    log_check = document.getElementById("log-check"),
+    
+    // Event booleans
+    mouseDown = false,
+    mouseDragging = false,
+    
+    // HeatMapper variables
+    heatmap = new HeatMapper(),
+    detail = 100,
+    breakPoint = undefined;
 
-var heatmap = new HeatMapper();
-var detail = 100;
-
-var breakPoint = undefined;
-
+// Event Listeners
 canvas.addEventListener("mousedown", mouseDownHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
 canvas.addEventListener("mouseup", mouseUpHandler);
@@ -19,6 +24,7 @@ val_input.addEventListener("input", valueChangeHandler);
 log_check.addEventListener("click", function() {
     updateMap();
     valueChangeHandler(null);
+    document.getElementById("code-2").innerHTML = (log_check.checked) ? ", true) = " : ") = ";
 });
 
 function valueChangeHandler(event) {
