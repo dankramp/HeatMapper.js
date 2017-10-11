@@ -9,6 +9,7 @@ var canvas = document.getElementById("heatCanvas"),
     
     // Event booleans
     mouseDown = false,
+    rightMouseDown = false,
     mouseDragging = false,
     
     // HeatMapper variables
@@ -18,6 +19,7 @@ var canvas = document.getElementById("heatCanvas"),
 
 // Event Listeners
 canvas.addEventListener("mousedown", mouseDownHandler);
+canvas.addEventListener("contextmenu", rightMouseHandler);
 canvas.addEventListener("mousemove", mouseMoveHandler);
 canvas.addEventListener("mouseup", mouseUpHandler);
 val_input.addEventListener("input", valueChangeHandler);
@@ -32,7 +34,18 @@ function valueChangeHandler(event) {
 }
 
 function mouseDownHandler(event) {
-    mouseDown = true;
+    mouseDown = event.which == 1;
+}
+
+function rightMouseHandler(event) {
+    event.preventDefault();
+    var nearest = nearestBreak(event.offsetX);
+    if (~nearest) {
+	heatmap.removeBreak(heatmap.getScalar()[nearest]);
+	updateCode();
+	updateMap();
+	updateList();
+    }
 }
 
 function mouseMoveHandler(event) {
@@ -50,10 +63,9 @@ function mouseMoveHandler(event) {
 }
 
 function mouseUpHandler(event) {
-    mouseDown = false;
     breakPoint = undefined;
 
-    if (!mouseDragging) {
+    if (mouseDown && !mouseDragging) {
 	var nearest = nearestBreak(event.offsetX);
 	
 	if (~nearest) { // If a break is found
@@ -67,6 +79,7 @@ function mouseUpHandler(event) {
 	}
     }
     mouseDragging = false;
+    mouseDown = false;
 }
 
 function updateCode() {

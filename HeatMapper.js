@@ -57,7 +57,7 @@
 	colors = colorArray;
 	scalar = scale;
     }
-
+    
     HeatMapper.prototype.getHexColor = function(value, log) {
 	var color;
 	
@@ -95,10 +95,20 @@
     HeatMapper.prototype.getColors = function() {
 	return colors;
     }
-    HeatMapper.prototype.addBreak = function(color, val) {
+    HeatMapper.prototype.addBreak = function(color, value) {
 	validateColor(color);
 	
-	colors.splice(pushSort(scalar, val), 0, color);
+	colors.splice(pushSort(scalar, value), 0, color);
+    }
+    HeatMapper.prototype.removeBreak = function(value) {
+	for (var i = 0, l = scalar.length; i < l; i++) {
+	    if (scalar[i] == value) {
+		colors.splice(i, 1);
+		scalar.splice(i, 1);
+		return true;
+	    }
+	}
+	return false;
     }
 
     function pushSort(array, value) {
