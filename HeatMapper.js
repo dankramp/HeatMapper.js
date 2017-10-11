@@ -57,7 +57,16 @@
 	colors = colorArray;
 	scalar = scale;
     }
-    
+
+
+    /**
+     * Calculates the color at the given value using either linear or logistic interpolation
+     *
+     * @param {number} value - The value at which to calculate the color
+     * @param {boolean} log  - True if logistic interpolation; false or empty if linear
+     *
+     * @returns {string} The calculated color as a string in hex format; e.g. '#ff04de'
+     */
     HeatMapper.prototype.getHexColor = function(value, log) {
 	var color;
 	
@@ -85,21 +94,49 @@
 	return color;
     }
 
+    /**
+     * @returns {array} A copy of the scalar array
+     */
     HeatMapper.prototype.getScalar = function() {
 	return scalar;
     }
+
+    /**
+     * Changes the value of an existing breakpoint
+     * 
+     * @param {number} index - The index of the breakpoint to move
+     * @param {number} value - The new value it should hold
+     */
     HeatMapper.prototype.setScalar = function(index, value) {
   	scalar.splice(index, 1);
 	pushSort(scalar, value);
     }
+    
+    /**
+     * @returns {array} A copy of the color array
+     */
     HeatMapper.prototype.getColors = function() {
 	return colors;
     }
+
+    /**
+     * Adds a breakpoint with the provided color and value
+     *
+     * @param {string} color - The color in hex format
+     * @param {number} value - The value where the color should appear
+     */
     HeatMapper.prototype.addBreak = function(color, value) {
 	validateColor(color);
 	
 	colors.splice(pushSort(scalar, value), 0, color);
     }
+
+    /**
+     * Removes a breakpoint with the given value
+     *
+     * @param {number} value - The value of the breakpoint to be removed
+     * @returns {boolean} True if a breakpoint was removed; false if none was found
+     */
     HeatMapper.prototype.removeBreak = function(value) {
 	for (var i = 0, l = scalar.length; i < l; i++) {
 	    if (scalar[i] == value) {
@@ -156,4 +193,5 @@
     }
     
     this.HeatMapper = HeatMapper;
+    
 }).call(this);
