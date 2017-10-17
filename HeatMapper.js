@@ -68,21 +68,17 @@
      * @returns {string} The calculated color as a string in hex format; e.g. '#ff04de'
      */
     HeatMapper.prototype.getHexColor = function(value, log) {
-	var color;
 	
 	if (value <= scalar[0]) // Beneath lower bound
-	    color = colors[0];
+	    return colors[0];
 	else if (value >= scalar[scalar.length - 1]) // Above upper bound
-	    color = colors[colors.length - 1];
+	    return colors[colors.length - 1];
 
 	else {
-	    for (var i = 1, l = scalar.length; i < l; i++)
-		if (value <= scalar[i]) { // Value is between scalar[i] and scalar[i-1]
-		    var vect;
-		    if (!log) // Linear interpolation
-			vect = (value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]);
-		    else // Logistic function
-			vect = 1 / (1 + Math.pow(Math.E, -10 / (scalar[i] - scalar[i - 1]) * (value - (scalar[i] + scalar[i - 1] ) / 2)));
+	    for (var i = 1, l = scalar.length; i < l; i++) {
+		if (value < scalar[i]) { // Value is between scalar[i] and scalar[i-1]
+		    var vect = (log) ? 1 / (1 + Math.pow(Math.E, -10 / (scalar[i] - scalar[i - 1]) * (value - (scalar[i] + scalar[i - 1] ) / 2))) : // Log
+			(value - scalar[i - 1]) / (scalar[i] - scalar[i - 1]); // Linear
 		    
 		    var c1 = hexToRGB(colors[i-1]),
 			c2 = hexToRGB(colors[i]);
@@ -90,8 +86,11 @@
 				     g: vect * (c2.g - c1.g) + c1.g,
 				     b: vect * (c2.b - c1.b) + c1.b });
 		}
+		else if (value == scalar[i]) // Value is on scalar, return color
+		    return colors[i];
+	    }
 	}
-	return color;
+	
     }
 
     /**
