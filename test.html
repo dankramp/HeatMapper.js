@@ -1,7 +1,7 @@
 <html>
   <head>
-    <title>heatMapper Test</title>
-    <script src="heatMapper.js"></script>
+    <title>HeatMapper.js Test</title>
+    <script src="HeatMapper.js"></script>
   </head>
   <body>
     <canvas id="theCanvas" width="500" height="80" style="border: 1px solid black"></canvas>
@@ -12,19 +12,19 @@
 
       var colors = [
       // White
-      {r: 255, g: 255, b: 255},
+      "#fff",
       // Red
-      {r: 255, g: 0, b: 0},
+      "#f00",
       // Blue
-      {r: 0, g: 0, b: 255},
+      "#00f",
       // Yellow
-      {r: 255, g: 255, b: 0},
+      "#ffff00",
       // Green
-      {r: 0, g: 255, b: 0}
+      "#00ff00"
       ];
 
       var scale = [0, 3, 10, 40, 100];
-      var heatMapper = new heatMapper(colors, scale);
+      var heatMapper = new HeatMapper(colors, scale);
       
       for (var i = 0; i < 100; i++) {
 			  ctx.fillStyle = heatMapper.getHexColor(i);
