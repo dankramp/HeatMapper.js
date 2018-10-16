@@ -13,7 +13,9 @@ var canvas = document.getElementById("heatCanvas"),
     mouseDragging = false,
     
     // HeatMapper variables
-    heatmap = new HeatMapper(),
+    heatmap = undefined,
+    scalar = [],
+    colors = [],
     detail = 100,
     breakPoint = undefined;
 
@@ -40,10 +42,11 @@ function mouseDownHandler(event) {
 function rightMouseHandler(event) {
     event.preventDefault();
     var nearest = nearestBreak(event.offsetX);
-    if (~nearest) {
-	heatmap.removeBreak(heatmap.getScalar()[nearest]);
-	updateCode();
+    if (~nearest && scalar.length != 1) {
+	scalar.splice(nearest, 1);
+	colors.splice(nearest, 1);
 	updateMap();
+	updateCode();
 	updateList();
     }
 }
@@ -55,7 +58,7 @@ function mouseMoveHandler(event) {
 	    breakPoint = nearestBreak(event.offsetX);
 	}
 	if (~breakPoint) {
-	    heatmap.setScalar(breakPoint, event.offsetX - event.offsetX % (canvas.width / detail));
+	    scalar[breakPoint] = event.offsetX - event.offsetX % (canvas.width / detail);
 	    updateMap();
 	    updateCode();
 	}
@@ -72,7 +75,15 @@ function mouseUpHandler(event) {
 	    document.getElementById("sp" + nearest).click();
 	}
 	else {
-	    heatmap.addBreak("#ff0000", event.offsetX - event.offsetX % (canvas.width / detail));
+	    var scalar_value = event.offsetX - event.offsetX % (canvas.width / detail),
+		i = 0,
+		l = scalar.length;
+	    for (; i < l; i++) {
+		if (scalar[i] > scalar_value)
+		    break;
+	    }
+	    scalar.splice(i, 0, scalar_value);
+	    colors.splice(i, 0, "#ff0000");
 	    updateMap();
 	    updateList();
 	    updateCode();
@@ -84,19 +95,18 @@ function mouseUpHandler(event) {
 
 function updateCode() {
     document.getElementById("code-box").innerHTML = "// Auto-generated code will appear here\n\n\
-var colors = [" + heatmap.getColors().map(function(c){ return "'" + c + "'";}).join(",") + "];\n\
-var scale = [" + heatmap.getScalar().map(function(s){ return s / 10; }).join(",") + "];\n\
+var colors = [" + colors.map(function(c){ return "'" + c + "'";}).join(",") + "];\n\
+var scale = [" + scalar.map(function(s){ return s / 10; }).join(",") + "];\n\
 var heatmap = new HeatMapper(colors, scale);";
 }
 
 function getComplementaryColor(color) {
-    var value = parseInt("ffffff", 16) - parseInt(color.substring(1), 16);
+    var value = 16777215 - parseInt(color.substring(1), 16);
     return "#" + value.toString(16).padStart(6, '0');
 }
 
 function updateMap() {
-    var scalar = heatmap.getScalar();
-    var colors = heatmap.getColors();
+    heatmap = new HeatMapper(colors, scalar);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (var i = 0; i < detail; i++) {
@@ -110,12 +120,9 @@ function updateMap() {
 	ctx.strokeStyle = getComplementaryColor(colors[i]);
 	ctx.strokeRect(scalar[i] - scalar[i] % (rectSize) + .5, 0, rectSize, canvas.height);
     }
-
 }
 
 function updateList() {
-    var scalar = heatmap.getScalar();
-    var colors = heatmap.getColors();
     for (i = 0, l = list.childNodes.length; i < l; i++) {
 	document.getElementById("sp" + i).removeEventListener("input", changeColor);	 
     }
@@ -129,17 +136,17 @@ function updateList() {
     }
 }
 
-function changeColor(event) {
-    var scalar = heatmap.getScalar(); // remove some of these gets
-    var colors = heatmap.getColors();
+function changeColor(event) {    
     colors[parseInt(event.srcElement.id.substring(2))] = event.srcElement.value;
     updateMap();
     updateCode();
 }
 
 function nearestBreak(x) {
-    var scalar = heatmap.getScalar(),
-	i,
+    if (scalar.length == 0)
+	return -1;
+    
+    var i,
 	l;
     for (i = 0, l = scalar.length; i < l; i++)
 	if (x - x % (canvas.width / detail) == scalar[i])

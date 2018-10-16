@@ -21,7 +21,7 @@
      *                               If a number, scale is linear mapping from 0 to the number.
      */
 
-    var HeatMapper = function(colorArray=[], scale=[]){
+    var HeatMapper = function(colorArray, scale){
 	
 	self = this;
 
@@ -43,6 +43,8 @@
 	    throw "error: scale must be a number or an array.";
 	if (scale.length != colorArray.length)
 	    throw "error: scale array must be same length as color array";
+	if (scale.length == 0)
+	    throw "error: arrays must have at least one value";
 
 	// Verify that numbers in scale are in order from least to greatest and no duplicates
 	for (i = scale.length - 1; i >= 0; i--)
@@ -50,8 +52,8 @@
 		throw "error: scale array must be ordered least to greatest without duplicates.";
 
 	// Verify that colors have r, g, b fields that are [0,255]
-	for (i = 0, l < colorArray.length; i < l; i++)
-	    validateColor(colorArray[i]);
+	for (i = 0, l = colorArray.length; i < l; i++)
+	    colorArray[i] = validateAndNormalizeColor(colorArray[i]);
 
 	// All tests passed; create object
 	colors = colorArray;
@@ -92,85 +94,19 @@
 	}
 	
     }
-
-    /**
-     * @returns {array} A copy of the scalar array
-     */
-    HeatMapper.prototype.getScalar = function() {
-	return scalar;
-    }
-
-    /**
-     * Changes the value of an existing breakpoint
-     * 
-     * @param {number} index - The index of the breakpoint to move
-     * @param {number} value - The new value it should hold
-     */
-    HeatMapper.prototype.setScalar = function(index, value) {
-  	scalar.splice(index, 1);
-	pushSort(scalar, value);
-    }
     
-    /**
-     * @returns {array} A copy of the color array
+    /*
+     * Internal function: Converts hexadecimal string to RGB object
      */
-    HeatMapper.prototype.getColors = function() {
-	return colors;
-    }
-
-    /**
-     * Adds a breakpoint with the provided color and value
-     *
-     * @param {string} color - The color in hex format
-     * @param {number} value - The value where the color should appear
-     */
-    HeatMapper.prototype.addBreak = function(color, value) {
-	validateColor(color);
-	
-	colors.splice(pushSort(scalar, value), 0, color);
-    }
-
-    /**
-     * Removes a breakpoint with the given value
-     *
-     * @param {number} value - The value of the breakpoint to be removed
-     * @returns {boolean} True if a breakpoint was removed; false if none was found
-     */
-    HeatMapper.prototype.removeBreak = function(value) {
-	for (var i = 0, l = scalar.length; i < l; i++) {
-	    if (scalar[i] == value) {
-		colors.splice(i, 1);
-		scalar.splice(i, 1);
-		return true;
-	    }
-	}
-	return false;
-    }
-
-    function pushSort(array, value) {
-	var i,
-	    l,
-	    index = array.length;
-	for (i = 0, l = array.length; i < l; i++) {
-	    if (value < array[i]) { // Insert at i if less than that value
-		index = i;
-		array.splice(i, 0, value);
-		break;
-	    }
-	}
-	if (index == array.length)
-	    array.push(value);
-	return index;
-    }
-
-    function hexToRGB(hex) {
-	validateColor(hex);
-	
+    function hexToRGB(hex) {	
 	return {r: parseInt(hex.substring(1, 3), 16),
 		g: parseInt(hex.substring(3, 5), 16),
 		b: parseInt(hex.substring(5, 7), 16) };
     }
 
+    /*
+     * Internal function: Converts rgb object to hexadecimal string
+     */
     function rgbToHex(rgb) {
 	var r = Math.floor(rgb.r).toString(16),
 	    g = Math.floor(rgb.g).toString(16),
@@ -183,12 +119,21 @@
 	return "#" + r + g + b;
     }
 
-    function validateColor(color) {
-	var regex = new RegExp("^#[a-fA-F0-9]{6}");
+    /*
+     * Internal function: Validates color format with regex then normalizes to #rrggbb
+     */
+    function validateAndNormalizeColor(color) {
+	// Validate
+	var regex = new RegExp("^#([a-fA-F0-9]{3}){1,2}$");
 	if (!regex.test(color)) {
-	    console.log(color);
-	    throw "error: colors must be formatted as #rrggbb";
+	    throw "error: colors must be formatted as #rrggbb or #rgb";
 	}
+	// Normalize to six-digit hex
+	regex = new RegExp("^#[a-fA-F0-9]{3}$");
+	if (regex.test(color)) { // three character hex
+	    color = "#" + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+	}
+	return color;
     }
     
     this.HeatMapper = HeatMapper;
